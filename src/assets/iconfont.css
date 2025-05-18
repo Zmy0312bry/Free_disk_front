@@ -1,0 +1,70 @@
+@font-face {
+  font-family: "iconfont";
+  src: url('//at.alicdn.com/t/font_3160774_y8510pp6io.woff2?t=1643807431010') format('woff2'),
+       url('//at.alicdn.com/t/font_3160774_y8510pp6io.woff?t=1643807431010') format('woff'),
+       url('//at.alicdn.com/t/font_3160774_y8510pp6io.ttf?t=1643807431010') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-xiangyoujiantou:before {
+  content: "\e65f";
+}
+
+.icon-sousuo:before {
+  content: "\e651";
+}
+
+.icon-shouye:before {
+  content: "\e7d5";
+}
+
+.icon-shoucangxiao:before {
+  content: "\e8bc";
+}
+
+.icon-lishi:before {
+  content: "\e6f0";
+}
+
+.icon-xiazai:before {
+  content: "\e639";
+}
+
+.icon-xiaoxi:before {
+  content: "\e69a";
+}
+
+.icon-fensi:before {
+  content: "\e7e5";
+}
+
+.icon-zhuxiaoyuan:before {
+  content: "\e61a";
+}
+
+.icon-rijian:before {
+  content: "\e765";
+}
+
+.icon-yejian:before {
+  content: "\e77d";
+}
+
+.icon-shangchuan:before {
+  content: "\e7d9";
+}
+
+.icon-jiahao:before {
+  content: "\e726";
+}
+
+.icon-jiazai:before {
+  content: "\e65d";
+}
