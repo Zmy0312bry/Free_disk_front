@@ -6,6 +6,34 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "4421937",
+      "name": "文件夹",
+      "font_class": "wenjianjia",
+      "unicode": "e671",
+      "unicode_decimal": 58993
+    },
+    {
+      "icon_id": "32228192",
+      "name": "夜间模式",
+      "font_class": "yejianmoshi",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
+    {
+      "icon_id": "35170152",
+      "name": "sun白天-太阳",
+      "font_class": "sunbaitian-taiyang",
+      "unicode": "e858",
+      "unicode_decimal": 59480
+    },
+    {
+      "icon_id": "24671132",
+      "name": "我的",
+      "font_class": "wode",
+      "unicode": "e704",
+      "unicode_decimal": 59140
+    },
+    {
       "icon_id": "3427858",
       "name": "下载",
       "font_class": "icon-",

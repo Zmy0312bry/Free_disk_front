@@ -9,7 +9,7 @@
                 <img src="@/assets/images/logo.png" alt="" />
               </div>
             </div>
-            <div class="text">白嫖怪网盘</div>
+            <div class="text app-title">白嫖怪网盘</div>
           </div>
         </router-link>
       </li>
@@ -81,21 +81,52 @@
           </div>
         </router-link>
       </li>
+      <li class="theme-switch-container">
+        <div class="theme-switch" @click="toggleDarkMode">
+          <div class="icon">
+            <i class="iconfont" :class="isDarkMode ? 'icon-yejianmoshi' : 'icon-sunbaitian-taiyang'"></i>
+          </div>
+          <div class="text">
+            {{ isDarkMode ? '深色模式' : '浅色模式' }}
+          </div>
+        </div>
+      </li>
     </ul>
   </div>
   <router-view></router-view>
 </template>
 
 <script>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 export default {
   name: 'App',
   setup() {
     const route = useRoute()
     const currentRoute = computed(() => route.path)
+    const isDarkMode = ref(false)
+
+    // 在组件挂载时检查并恢复暗黑模式设置
+    onMounted(() => {
+      // 从localStorage获取暗黑模式设置
+      const savedDarkMode = localStorage.getItem('darkMode')
+      if (savedDarkMode === 'true') {
+        isDarkMode.value = true
+        document.body.classList.add('dark-mode')
+      }
+    })
+
+    const toggleDarkMode = () => {
+      isDarkMode.value = !isDarkMode.value
+      document.body.classList.toggle('dark-mode')
+      // 保存设置到localStorage
+      localStorage.setItem('darkMode', isDarkMode.value.toString())
+    }
+
     return {
       currentRoute,
+      isDarkMode,
+      toggleDarkMode
     }
   },
 }
@@ -127,6 +158,7 @@ section {
   color: rgba(110, 90, 240, 0.3);
   background: #e4e9f5;
 }
+
 
 .shell {
   position: fixed;
@@ -167,7 +199,7 @@ section {
 
 /* 调整imageBox在logo中的位置 */
 #logo .imageBox {
-  margin-left: -5px; /* 添加少量左边距 */
+  margin-left: 5px; /* 添加少量左边距 */
 }
 
 .imageBox {
@@ -383,7 +415,6 @@ section {
   z-index: 0; /* 确保在图片下层 */
 }
 
-
 /* 搜索栏样式 */
 .search-container {
   margin: 0 0 30px 0;
@@ -444,5 +475,88 @@ section {
   width: 100%;
 }
 
+/* 暗黑模式切换按钮样式 */
+.theme-switch-container {
+  margin: 15px 20px 15px 0;
+  padding: 0 5px;
+  position: relative;
+  left: -5px;
+}
 
+.theme-switch {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  width: 42px;
+  transition: all 0.3s ease;
+  border-radius: 25px;
+  overflow: hidden;
+}
+
+.shell:hover .theme-switch {
+  width: 250px;
+  background: #f5f7fa;
+}
+
+.theme-switch .icon {
+  min-width: 42px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background: #f5f7fa;
+  color: rgb(110, 90, 240);
+}
+
+.theme-switch .text {
+  font-size: 14px;
+  margin-left: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.shell:hover .theme-switch .text {
+  opacity: 1;
+}
+
+/* 暗黑模式样式 */
+.dark-mode {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.dark-mode .shell {
+  background: #2d2d2d;
+}
+
+.dark-mode .active {
+  background: #1a1a1a;
+}
+
+.dark-mode .active::before {
+  box-shadow: 5px 5px 0 5px #1a1a1a;
+}
+
+.dark-mode .active::after {
+  box-shadow: 5px -5px 0 5px #1a1a1a;
+}
+
+.dark-mode .search-box,
+.dark-mode .theme-switch .icon,
+.dark-mode .shell:hover .theme-switch {
+  background: #3d3d3d;
+}
+
+.dark-mode .text {
+  color: #fff;
+}
+
+.dark-mode .search-input {
+  color: #fff;
+}
+
+.dark-mode .search-input::placeholder {
+  color: #666;
+}
 </style>
