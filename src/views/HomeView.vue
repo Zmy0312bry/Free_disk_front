@@ -28,23 +28,69 @@
       </div>
     </div>
 
-    <!-- 文件上传按钮 -->
-    <div class="upload-button" @click="triggerFileUpload">
-      <svg class="icon upload-icon" aria-hidden="true">
-        <use xlink:href="#icon-shangchuan1"></use>
-      </svg>
-      <input
-        type="file"
-        ref="fileInput"
-        style="display: none"
-        @change="handleFileUpload"
-        multiple
-      />
+    <!-- 添加上传进度对话框 -->
+    <div class="upload-overlay" v-if="uploading">
+      <div class="upload-container">
+        <h2>文件上传</h2>
+
+        <div class="file-info">
+          <p><strong>文件名:</strong> {{ uploadingFileName }}</p>
+          <p><strong>目标路径:</strong> {{ uploadTargetPath }}</p>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress" :style="{ width: `${uploadProgress}%` }"></div>
+          </div>
+          <div class="progress-text">{{ uploadProgress }}%</div>
+        </div>
+
+        <div
+          class="status-text"
+          :class="{ error: uploadError, success: uploadComplete && !uploadError }"
+        >
+          {{ uploadStatusText }}
+        </div>
+
+        <button
+          class="back-button"
+          @click="closeUploadDialog"
+          :disabled="isUploading && !uploadError"
+        >
+          {{ uploadComplete || uploadError ? '关闭' : '取消上传' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- 两个按钮 -->
+    <div class="upload-buttons-container">
+      <!-- 新建文件夹按钮 -->
+      <div class="upload-button new-folder-button" @click="createNewFolder">
+        <svg class="icon upload-icon" aria-hidden="true">
+          <use xlink:href="#icon-xinjianwenjianjia1"></use>
+        </svg>
+      </div>
+
+      <!-- 文件上传按钮 -->
+      <div class="upload-button" @click="triggerFileUpload">
+        <svg class="icon upload-icon" aria-hidden="true">
+          <use xlink:href="#icon-shangchuan1"></use>
+        </svg>
+        <input
+          type="file"
+          ref="fileInput"
+          style="display: none"
+          @change="handleFileUpload"
+          multiple
+        />
+      </div>
     </div>
   </section>
 </template>
 
 <script>
+// 导入API函数
+import { fetchFileTree, sparsePull, uploadFiles, createFolder } from '../api/home_api.js'
 export default {
   name: 'HomeView',
   data() {
@@ -54,6 +100,14 @@ export default {
       currentPath: ['root'],
       currentFiles: {},
       uploading: false,
+      // 添加上传相关数据
+      isUploading: false, // 是否正在上传
+      uploadingFileName: '', // 当前上传的文件名
+      uploadTargetPath: '', // 上传目标路径
+      uploadProgress: 0, // 上传进度百分比
+      uploadStatusText: '准备上传...', // 上传状态文本
+      uploadError: false, // 是否有上传错误
+      uploadComplete: false, // 上传是否完成
     }
   },
   methods: {
@@ -112,138 +166,242 @@ export default {
       }
     },
 
+    // 获取当前路径字符串，用于API调用
+    getCurrentPathString() {
+      // 如果只有root，返回root
+      if (this.currentPath.length === 1 && this.currentPath[0] === 'root') {
+        return 'root'
+      }
+      // 否则返回去掉root的路径
+      return this.currentPath.slice(1).join('/')
+    },
+
     // 处理文件/文件夹点击
-    handleItemClick(name, item) {
+    async handleItemClick(name, item) {
+      console.log(`点击项目: ${name}`, item)
       if (Object.keys(item).length > 0) {
         // 是文件夹，更新路径和显示内容
+        console.log(`进入文件夹: ${name}`)
         this.currentPath.push(name)
         this.updateCurrentFiles()
+
+        // 路径变化时调用稀疏拉取API
+        try {
+          const pathString = this.getCurrentPathString()
+          console.log(`路径变化，执行稀疏拉取: ${pathString}`)
+          await sparsePull(pathString)
+        } catch (error) {
+          console.error('稀疏拉取失败:', error)
+        }
+      } else {
+        console.log(`点击文件: ${name}`)
+        // 这里可以添加文件处理逻辑
       }
     },
 
     // 更新当前显示的文件列表
     updateCurrentFiles() {
+      console.log('开始更新当前文件列表，当前路径:', this.currentPath)
       let current = this.fileData.data.root
+
       // 根据当前路径遍历到对应层级
       for (let i = 1; i < this.currentPath.length; i++) {
+        console.log(`路径导航: 进入 ${this.currentPath[i]} 层级`)
+        if (!current[this.currentPath[i]]) {
+          console.error(`路径错误: ${this.currentPath[i]} 不存在!`)
+          return
+        }
         current = current[this.currentPath[i]]
       }
-      this.currentFiles = current
+
+      console.log('当前目录内容:', Object.keys(current))
+      // 过滤掉后缀名为.myignore的文件
+      const filteredFiles = {}
+      Object.keys(current).forEach((name) => {
+        if (!name.endsWith('.myignore')) {
+          filteredFiles[name] = current[name]
+        }
+      })
+      console.log('当前目录内容(过滤后):', Object.keys(filteredFiles))
+      this.currentFiles = filteredFiles
     },
 
     // 路径导航点击
-    navigateToPath(index) {
+    async navigateToPath(index) {
+      console.log(`路径导航点击: 从 ${this.currentPath.join('/')} 切换到索引 ${index}`)
       // 截取到点击的位置
       this.currentPath = this.currentPath.slice(0, index + 1)
+      console.log('新路径:', this.currentPath.join('/'))
       this.updateCurrentFiles()
+      // 路径变化时调用稀疏拉取API
+      try {
+        const pathString = this.getCurrentPathString()
+        console.log(`路径变化，执行稀疏拉取: ${pathString}`)
+        await sparsePull(pathString)
+      } catch (error) {
+        console.error('稀疏拉取失败:', error)
+      }
     },
 
     // 模拟获取文件树数据
+    // 获取文件树数据
     async fetchFileTree() {
+      console.log('开始获取文件树数据...')
       try {
-        // 这里使用模拟数据，实际项目中需要替换为真实的API调用
-        this.fileData = {
-          success: true,
-          message: '获取文件树成功',
-          data: {
-            root: {
-              '.gitignore': {},
-              'app.js': {},
-              config: {
-                'gitConfig.js': {},
-              },
-              controllers: {
-                'gitController.js': {},
-                'gitTreeController.js': {},
-                'sshController.js': {},
-              },
-              examples: {
-                'useFileTreeIndex.js': {},
-              },
-              'package.json': {},
-              public: {
-                '3333.txt': {},
-                'hello.txt': {},
-                'hello1.txt': {},
-                'hello5.txt': {},
-                temp: {
-                  'gitee_id_rsa_1745845010860.pub': {},
-                  'id_ed25519_1745311729219.pub': {},
-                  'id_test_1745312938693.pub': {},
-                },
-                'this.txt': {},
-              },
-              'readme.md': {},
-              routes: {
-                'git-tree.js': {},
-                'git.js': {},
-                'index.js': {},
-                'ssh.js': {},
-              },
-              utils: {
-                'fileUtils.js': {},
-                'gitTreeUtils.js': {},
-                'gitUtils.js': {},
-                '111.doc': {},
-              },
-            },
-          },
-        }
+        console.time('文件树获取耗时')
+        // 使用API文件中的函数获取文件树
+        const response = await fetchFileTree()
+        console.timeEnd('文件树获取耗时')
+
+        console.log('文件树获取成功，数据结构:', {
+          hasData: !!response,
+          rootKeys: response?.data ? Object.keys(response.data) : '无数据',
+        })
+
+        this.fileData = response
         this.updateCurrentFiles()
       } catch (error) {
         console.error('获取文件树失败:', error)
+        console.log('错误详情:', {
+          message: error.message,
+          stack: error.stack,
+          response: error.response?.data,
+        })
+
+        // 可以添加用户提示
+        this.$message?.error?.('获取文件列表失败，请刷新页面重试') ||
+          alert('获取文件列表失败，请刷新页面重试')
       }
     },
 
     // 触发文件选择对话框
     triggerFileUpload() {
+      console.log('触发文件上传对话框')
       this.$refs.fileInput.click()
     },
-
-    // 处理文件上传
+    // 处理文件上传 - 修改现有方法
     async handleFileUpload(event) {
       const files = event.target.files
-      if (!files || files.length === 0) return
+      if (!files || files.length === 0) {
+        console.log('未选择任何文件')
+        return
+      }
 
+      console.log(
+        `选择了 ${files.length} 个文件:`,
+        Array.from(files).map((f) => f.name),
+      )
+
+      // 获取当前路径（去掉root）
+      const currentPathString = this.currentPath.slice(1).join('/') || '/'
+      this.uploadTargetPath = currentPathString
+      console.log('上传目标路径:', currentPathString)
+
+      // 目前只处理第一个文件
+      const file = files[0]
+      this.uploadingFileName = file.name
+
+      // 显示上传对话框
+      this.uploading = true
+      this.isUploading = true
+      this.uploadProgress = 0
+      this.uploadStatusText = '正在上传...'
+      this.uploadError = false
+      this.uploadComplete = false
       try {
-        this.uploading = true
-        // 创建一个FormData对象用于文件上传
-        const formData = new FormData()
-
-        // 添加当前路径信息
-        formData.append('path', this.currentPath.join('/'))
-
-        // 添加所有选择的文件
-        for (let i = 0; i < files.length; i++) {
-          formData.append('files', files[i])
-        }
-
-        // 发送上传请求
-        // 这里使用fetch API示例，实际项目中可以使用axios等库
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
+        // 调用API上传文件
+        const result = await uploadFiles(file, currentPathString, (progress) => {
+          this.uploadProgress = progress
         })
 
-        const result = await response.json()
+        // 上传成功
+        this.uploadProgress = 100
+        this.uploadComplete = true
+        this.uploadStatusText = `文件上传成功! ${result.message || ''}`
 
-        if (result.success) {
-          // 上传成功后刷新文件列表
+        // 刷新文件列表
+        setTimeout(() => {
           this.fetchFileTree()
-          this.$refs.fileInput.value = null // 清空文件选择器
-          alert('文件上传成功！')
-        } else {
-          throw new Error(result.message || '上传失败')
-        }
+        }, 1000)
       } catch (error) {
+        // 上传失败
+        this.uploadError = true
+        this.uploadStatusText = `上传失败: ${error.message || '未知错误'}`
         console.error('文件上传失败:', error)
-        alert(`文件上传失败: ${error.message}`)
       } finally {
+        this.isUploading = false
+        // 重置文件输入控件，以便用户可以再次选择相同的文件
+        this.$refs.fileInput.value = ''
+      }
+    },
+    // 关闭上传对话框
+    closeUploadDialog() {
+      // 如果正在上传且没有错误，询问用户是否确定取消
+      if (this.isUploading && !this.uploadError) {
+        if (confirm('上传正在进行中，确定要取消吗？')) {
+          // 这里可以添加取消上传的逻辑，如果API支持的话
+          this.uploading = false
+        }
+      } else {
+        // 关闭对话框
         this.uploading = false
+
+        // 如果上传成功，刷新文件列表
+        if (this.uploadComplete && !this.uploadError) {
+          this.fetchFileTree()
+        }
+      }
+    },
+    // 新建文件夹方法
+    async createNewFolder() {
+      console.log('创建新文件夹')
+      // 弹出对话框让用户输入文件夹名称
+      const folderName = prompt('请输入新文件夹名称:')
+
+      if (folderName) {
+        if (folderName.trim() === '') {
+          alert('文件夹名称不能为空')
+          return
+        }
+
+        // 检查文件夹名称是否已存在
+        if (this.currentFiles[folderName]) {
+          alert(`文件夹 "${folderName}" 已存在`)
+          return
+        }
+
+        try {
+          // 获取当前目录路径
+          let baseDir = ''
+          if (this.currentPath.length > 1) {
+            // 如果不是根目录，则构造路径
+            baseDir = '/' + this.currentPath.slice(1).join('/')
+          }
+
+          console.log(`创建文件夹: ${folderName}, 在路径: ${baseDir || '根目录'}`)
+
+          // 调用API创建文件夹
+          const result = await createFolder(baseDir, folderName)
+
+          console.log('创建文件夹结果:', result)
+
+          if (result.success) {
+            // 创建成功，刷新文件列表
+            this.fetchFileTree()
+            alert(`文件夹 "${folderName}" 创建成功!`)
+          } else {
+            // 创建失败
+            alert(`创建文件夹失败: ${result.message || '未知错误'}`)
+          }
+        } catch (error) {
+          console.error('创建文件夹时发生错误:', error)
+          alert(`创建文件夹时发生错误: ${error.message || '未知错误'}`)
+        }
       }
     },
   },
   mounted() {
+    console.log('HomeView 组件已挂载')
     // 引入iconfont.js文件
     const script = document.createElement('script')
     script.src = '/src/assets/font/iconfont.js'
@@ -260,6 +418,22 @@ export default {
     if (shell) {
       shell.addEventListener('mouseenter', this.handleMouseEnter)
       shell.addEventListener('mouseleave', this.handleMouseLeave)
+    }
+
+    // 检查是否需要刷新文件树和更新路径
+    if (this.$route.params.shouldRefresh === 'true' && this.$route.params.refreshPath) {
+      console.log('检测到需要刷新数据，参数:', this.$route.params)
+      try {
+        const pathToNavigate = JSON.parse(this.$route.params.refreshPath)
+        console.log('解析后的路径:', pathToNavigate)
+        if (Array.isArray(pathToNavigate) && pathToNavigate.length > 0) {
+          console.log('设置新路径:', pathToNavigate)
+          this.currentPath = pathToNavigate
+        }
+      } catch (e) {
+        console.error('解析返回路径失败:', e)
+        console.log('原始路径数据:', this.$route.params.refreshPath)
+      }
     }
 
     // 获取文件树数据
@@ -438,11 +612,19 @@ section.shell-expanded {
   padding: 0 5px;
 }
 
-/* 上传按钮样式 */
-.upload-button {
+/* 上传按钮容器 */
+.upload-buttons-container {
   position: fixed;
   right: 50px;
   bottom: 50px;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  z-index: 100;
+}
+
+/* 上传按钮样式 */
+.upload-button {
   width: 80px;
   height: 80px;
   border-radius: 50%;
@@ -453,7 +635,6 @@ section.shell-expanded {
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
-  z-index: 100;
 }
 
 .upload-button:hover {
@@ -464,5 +645,113 @@ section.shell-expanded {
 .upload-button .upload-icon {
   font-size: 40px;
   color: white;
+}
+
+.upload-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.upload-container {
+  max-width: 600px;
+  max-height: 900px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: #333;
+  margin-bottom: 30px;
+  text-align: center;
+  font-size: 22px;
+}
+
+.file-info {
+  margin-bottom: 30px;
+  background-color: #f5f7fa;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #6e5af0;
+}
+.file-info p {
+  margin: 8px 0;
+  word-break: break-all;
+  font-size: 16px;
+}
+
+.progress-container {
+  margin: 30px 0;
+}
+
+.progress-bar {
+  height: 20px;
+  background-color: #e9ecef;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress {
+  height: 100%;
+  background-color: #6e5af0;
+  border-radius: 20px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  text-align: center;
+  font-weight: bold;
+  color: #6e5af0;
+  font-size: 15px;
+}
+
+.status-text {
+  text-align: center;
+  padding: 10px;
+  margin: 20px 0;
+  border-radius: 5px;
+  font-size: 16px;
+}
+.status-text.error {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.status-text.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.back-button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #6e5af0;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.back-button:hover {
+  background-color: #5a48c0;
+}
+
+.back-button:disabled {
+  background-color: #bbb;
+  cursor: not-allowed;
 }
 </style>

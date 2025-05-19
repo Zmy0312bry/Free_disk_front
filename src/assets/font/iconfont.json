@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "41085874",
+      "name": "新建文件夹-copy",
+      "font_class": "xinjianwenjianjia1",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
       "icon_id": "19460948",
       "name": "上传",
       "font_class": "shangchuan1",
