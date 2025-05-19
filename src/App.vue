@@ -316,7 +316,7 @@ section {
 }
 
 #home-nav {
-  margin-top: -8px; /* 减少顶部外边距 */
+  margin-top: -20px; /* 减少顶部外边距 */
   /* 或者使用transform */
   /* transform: translateY(-10px); */
 }
@@ -324,8 +324,8 @@ section {
 /* ME个人资料样式 */
 .me-profile {
   position: relative;
-  margin: 30px 0 0 0; /* 顶部外边距 */
-  padding: 15px 5px 0 5px;
+  margin: 60px 0 0 0; /* 顶部外边距 */
+  padding: 5px 5px 0 5px;
   transition: background 0.3s ease; /* 只过渡背景色变化 */
 }
 
@@ -333,7 +333,7 @@ section {
 .me-profile::after {
   content: '';
   position: absolute;
-  top: -15px; /* 向上偏移使分隔线位于元素上方 */
+  top: 0px; /* 向上偏移使分隔线位于元素上方 */
   left: 5px;
   right: 5px;
   height: 0; /* 高度为0，只显示边框 */
@@ -345,7 +345,7 @@ section {
 .active.me-profile::after {
   content: '' !important;
   position: absolute !important;
-  top: -15px !important;
+  top: 0px !important;
   left: 5px !important;
   right: 5px !important;
   height: 0 !important;
