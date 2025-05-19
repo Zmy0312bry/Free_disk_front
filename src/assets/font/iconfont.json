@@ -6,6 +6,188 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "31627397",
+      "name": "文件图标",
+      "font_class": "wenjiantubiao",
+      "unicode": "e63f",
+      "unicode_decimal": 58943
+    },
+    {
+      "icon_id": "5916393",
+      "name": "7z",
+      "font_class": "z",
+      "unicode": "e613",
+      "unicode_decimal": 58899
+    },
+    {
+      "icon_id": "5916398",
+      "name": "BMP",
+      "font_class": "BMP",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "5916400",
+      "name": "CSS",
+      "font_class": "CSS",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "5916403",
+      "name": "DOCX",
+      "font_class": "DOCX",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
+      "icon_id": "5916404",
+      "name": "DOC",
+      "font_class": "DOC",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
+      "icon_id": "5916406",
+      "name": "HTML",
+      "font_class": "HTML",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "5916407",
+      "name": "ICO",
+      "font_class": "ICO",
+      "unicode": "e619",
+      "unicode_decimal": 58905
+    },
+    {
+      "icon_id": "5916408",
+      "name": "INI",
+      "font_class": "INI",
+      "unicode": "e61a",
+      "unicode_decimal": 58906
+    },
+    {
+      "icon_id": "5916414",
+      "name": "JPEG",
+      "font_class": "JPEG",
+      "unicode": "e61b",
+      "unicode_decimal": 58907
+    },
+    {
+      "icon_id": "5916415",
+      "name": "JPG",
+      "font_class": "JPG",
+      "unicode": "e61c",
+      "unicode_decimal": 58908
+    },
+    {
+      "icon_id": "5916416",
+      "name": "JS",
+      "font_class": "JS",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    },
+    {
+      "icon_id": "5916417",
+      "name": "MD",
+      "font_class": "MD",
+      "unicode": "e61e",
+      "unicode_decimal": 58910
+    },
+    {
+      "icon_id": "5916418",
+      "name": "MP3",
+      "font_class": "MP",
+      "unicode": "e620",
+      "unicode_decimal": 58912
+    },
+    {
+      "icon_id": "5916419",
+      "name": "MP4",
+      "font_class": "MP1",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
+      "icon_id": "5916422",
+      "name": "PDF",
+      "font_class": "PDF",
+      "unicode": "e623",
+      "unicode_decimal": 58915
+    },
+    {
+      "icon_id": "5916424",
+      "name": "PNG",
+      "font_class": "PNG",
+      "unicode": "e624",
+      "unicode_decimal": 58916
+    },
+    {
+      "icon_id": "5916425",
+      "name": "PPT",
+      "font_class": "PPT",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    },
+    {
+      "icon_id": "5916427",
+      "name": "PY",
+      "font_class": "PY",
+      "unicode": "e626",
+      "unicode_decimal": 58918
+    },
+    {
+      "icon_id": "5916428",
+      "name": "RAR",
+      "font_class": "RAR",
+      "unicode": "e627",
+      "unicode_decimal": 58919
+    },
+    {
+      "icon_id": "5916431",
+      "name": "SVG",
+      "font_class": "SVG",
+      "unicode": "e628",
+      "unicode_decimal": 58920
+    },
+    {
+      "icon_id": "5916434",
+      "name": "TEXT",
+      "font_class": "TEXT",
+      "unicode": "e629",
+      "unicode_decimal": 58921
+    },
+    {
+      "icon_id": "5916435",
+      "name": "XLSX",
+      "font_class": "XLSX",
+      "unicode": "e62a",
+      "unicode_decimal": 58922
+    },
+    {
+      "icon_id": "5916439",
+      "name": "YAML",
+      "font_class": "YAML",
+      "unicode": "e62b",
+      "unicode_decimal": 58923
+    },
+    {
+      "icon_id": "5916440",
+      "name": "ZIP",
+      "font_class": "ZIP",
+      "unicode": "e62c",
+      "unicode_decimal": 58924
+    },
+    {
+      "icon_id": "5916761",
+      "name": "BIN",
+      "font_class": "BIN",
+      "unicode": "e62d",
+      "unicode_decimal": 58925
+    },
+    {
       "icon_id": "4421937",
       "name": "文件夹",
       "font_class": "wenjianjia",
