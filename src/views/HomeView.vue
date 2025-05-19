@@ -441,10 +441,10 @@ section.shell-expanded {
 /* 上传按钮样式 */
 .upload-button {
   position: fixed;
-  right: 30px;
-  bottom: 30px;
-  width: 60px;
-  height: 60px;
+  right: 50px;
+  bottom: 50px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background-color: rgba(110, 90, 240, 0.9);
   display: flex;
@@ -462,7 +462,7 @@ section.shell-expanded {
 }
 
 .upload-button .upload-icon {
-  font-size: 30px;
+  font-size: 40px;
   color: white;
 }
 </style>
