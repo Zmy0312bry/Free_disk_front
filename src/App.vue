@@ -193,10 +193,6 @@ section {
   min-width: auto; /* 允许宽度自适应内容 */
 }
 
-/* 调整logo的text样式，确保左对齐 */
-#logo .text {
-  padding-left: 10px; /* 减少文字左侧间距 */
-}
 
 /* 调整imageBox在logo中的位置 */
 #logo .imageBox {
@@ -272,8 +268,7 @@ section {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-width: 60px;
-  padding-left: 10px;
+  min-width: 70px;
   height: 70px;
   color: #333;
   transition: 0.5s;
@@ -283,6 +278,12 @@ section {
 .icon i {
   font-size: 30px;
   z-index: 999;
+  display: flex; /* 添加flex布局 */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  width: 100%; /* 占满父容器宽度 */
+  height: 100%; /* 占满父容器高度 */
+  text-align: center; /* 文本居中 */
 }
 
 .text {
@@ -296,6 +297,13 @@ section {
   text-transform: uppercase;
   letter-spacing: 2px;
   transition: 0.5s;
+  margin-left: 20px; /* 添加这行，让文本向右移动 */
+}
+
+/* 为app-title添加特殊样式，因为它与其他文本元素可能有不同的对齐需求 */
+.app-title {
+  margin-left: 20px; /* 不使用auto，给定一个固定值 */
+  flex-grow: 0; /* 不需要占据所有剩余空间 */
 }
 
 .shell ul li:hover a .icon,
@@ -329,6 +337,11 @@ section {
   transition: background 0.3s ease; /* 只过渡背景色变化 */
 }
 
+/* ME 标签的文本可能需要特殊处理 */
+.me-profile .text {
+  margin-left: 80px; /* 为ME文本设置特定的左边距 */
+}
+
 /* 为ME添加顶部分隔线，使用::after而不是::before */
 .me-profile::after {
   content: '';
@@ -345,7 +358,7 @@ section {
 .active.me-profile::after {
   content: '' !important;
   position: absolute !important;
-  top: 0px !important;
+  top: -10px !important;
   left: 5px !important;
   right: 5px !important;
   height: 0 !important;

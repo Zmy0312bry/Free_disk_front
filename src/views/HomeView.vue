@@ -21,7 +21,9 @@
         :key="name"
         @click="handleItemClick(name, item)"
       >
-        <i class="iconfont" :class="getItemIcon(name, item)"></i>
+        <svg class="icon" aria-hidden="true">
+          <use :xlink:href="getItemIconSymbol(name, item)"></use>
+        </svg>
         <span class="folder-name">{{ name }}</span>
       </div>
     </div>
@@ -40,58 +42,58 @@ export default {
     }
   },
   methods: {
-    // 获取文件/文件夹图标
-    getItemIcon(name, item) {
+    // 获取文件/文件夹图标Symbol
+    getItemIconSymbol(name, item) {
       if (Object.keys(item).length > 0) {
-        return 'icon-wenjianjia' // 文件夹图标
+        return '#icon-wenjianjia' // 文件夹图标
       }
       const ext = name.split('.').pop().toLowerCase()
       switch (ext) {
         case 'js':
-          return 'icon-JS'
+          return '#icon-JS'
         case 'json':
-          return 'icon-wenjiantubiao'
+          return '#icon-wenjiantubiao'
         case 'md':
-          return 'icon-MD'
+          return '#icon-MD'
         case 'txt':
         case 'text':
-          return 'icon-TEXT'
+          return '#icon-TEXT'
         case 'bin':
-          return 'icon-BIN'
+          return '#icon-BIN'
         case 'css':
-          return 'icon-CSS'
+          return '#icon-CSS'
         case 'doc':
-          return 'icon-DOC'
+          return '#icon-DOC'
         case 'docx':
-          return 'icon-DOCX'
+          return '#icon-DOCX'
         case 'xls':
         case 'xlsx':
-          return 'icon-XLSX'
+          return '#icon-XLSX'
         case 'html':
-          return 'icon-HTML'
+          return '#icon-HTML'
         case 'py':
-          return 'icon-PY'
+          return '#icon-PY'
         case 'ico':
-          return 'icon-ICO'
+          return '#icon-ICO'
         case 'jpg':
-          return 'icon-JPG'
+          return '#icon-JPG'
         case 'jpeg':
-          return 'icon-JPEG'
+          return '#icon-JPEG'
         case 'png':
-          return 'icon-PNG'
+          return '#icon-PNG'
         case 'ppt':
         case 'pptx':
-          return 'icon-PPT'
+          return '#icon-PPT'
         case 'rar':
-          return 'icon-RAR'
+          return '#icon-RAR'
         case 'zip':
-          return 'icon-ZIP'
+          return '#icon-ZIP'
         case 'svg':
-          return 'icon-SVG'
+          return '#icon-SVG'
         case 'pdf':
-          return 'icon-PDF'
+          return '#icon-PDF'
         default:
-          return 'icon-wenjiantubiao' // 默认文件图标
+          return '#icon-wenjiantubiao' // 默认文件图标
       }
     },
 
@@ -179,6 +181,11 @@ export default {
     },
   },
   mounted() {
+    // 引入iconfont.js文件
+    const script = document.createElement('script')
+    script.src = '/src/assets/font/iconfont.js'
+    document.head.appendChild(script)
+
     this.handleMouseEnter = () => {
       this.isShellHovered = true
     }
@@ -224,7 +231,7 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
-.dark-mode .folder-item .iconfont {
+.dark-mode .folder-item .icon {
   filter: brightness(0.8) contrast(1.2) !important;
 }
 
@@ -240,10 +247,21 @@ export default {
 .dark-mode .path-separator {
   color: #666 !important;
 }
+
+
 </style>
 
 <style scoped>
-@import '@/assets/font/iconfont.css';
+
+/* Symbol 图标全局样式 */
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}
+
 section {
   position: fixed;
   top: 0;
@@ -271,14 +289,21 @@ section.shell-expanded {
   border-radius: 8px;
   margin-bottom: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-right: auto;
+  max-width: 800px;
+  display: flex; /* 添加flex布局 */
+  justify-content: flex-start; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
 }
 
 .path-item {
-  display: inline-block;
+  display: inline-flex; /* 改为inline-flex更好地控制对齐 */
+  align-items: center; /* 垂直居中内容 */
   color: #333;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 22px;
   transition: color 0.3s;
+  height: 24px; /* 设置固定高度确保垂直居中一致 */
 }
 
 .path-item:hover {
@@ -325,9 +350,10 @@ section.shell-expanded {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.folder-item .iconfont {
+.folder-item .icon {
   font-size: 84px;
   margin-bottom: 8px;
+  color: #333;
 }
 
 .folder-name {
