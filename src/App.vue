@@ -135,8 +135,13 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 @import '@/assets/font/iconfont.css';
+<<<<<<< HEAD
+=======
+</style>
+<style>
+>>>>>>> 513137d0d886a7dd5ea89d5540056beaeda715af
 * {
   margin: 0;
   padding: 0;
