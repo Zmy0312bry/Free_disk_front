@@ -84,7 +84,10 @@
       <li class="theme-switch-container">
         <div class="theme-switch" @click="toggleDarkMode">
           <div class="icon">
-            <i class="iconfont" :class="isDarkMode ? 'icon-yejianmoshi' : 'icon-sunbaitian-taiyang'"></i>
+            <i
+              class="iconfont"
+              :class="isDarkMode ? 'icon-yejianmoshi' : 'icon-sunbaitian-taiyang'"
+            ></i>
           </div>
           <div class="text">
             {{ isDarkMode ? '深色模式' : '浅色模式' }}
@@ -126,15 +129,16 @@ export default {
     return {
       currentRoute,
       isDarkMode,
-      toggleDarkMode
+      toggleDarkMode,
     }
   },
 }
 </script>
 
-<style>
+<style scoped>
 @import '@/assets/font/iconfont.css';
-
+</style>
+<style>
 * {
   margin: 0;
   padding: 0;
@@ -158,7 +162,6 @@ section {
   color: rgba(110, 90, 240, 0.3);
   background: #e4e9f5;
 }
-
 
 .shell {
   position: fixed;

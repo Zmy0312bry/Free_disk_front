@@ -1,9 +1,28 @@
 <template>
   <section :class="{ 'shell-expanded': isShellHovered }">
+    <!-- 路径导航 -->
+    <div class="path-nav">
+      <span
+        v-for="(path, index) in currentPath"
+        :key="index"
+        @click="navigateToPath(index)"
+        class="path-item"
+      >
+        {{ path }}
+        <span v-if="index < currentPath.length - 1" class="path-separator">/</span>
+      </span>
+    </div>
+
+    <!-- 文件夹容器 -->
     <div class="folder-container" :class="{ 'container-expanded': isShellHovered }">
-      <div class="folder-item" v-for="i in 19" :key="i">
-        <i class="iconfont icon-wenjianjia"></i>
-        <span class="folder-name">文件夹 {{ i }}</span>
+      <div
+        class="folder-item"
+        v-for="(item, name) in currentFiles"
+        :key="name"
+        @click="handleItemClick(name, item)"
+      >
+        <i class="iconfont" :class="getItemIcon(name, item)"></i>
+        <span class="folder-name">{{ name }}</span>
       </div>
     </div>
   </section>
@@ -15,10 +34,151 @@ export default {
   data() {
     return {
       isShellHovered: false,
+      fileData: null,
+      currentPath: ['root'],
+      currentFiles: {},
     }
   },
+  methods: {
+    // 获取文件/文件夹图标
+    getItemIcon(name, item) {
+      if (Object.keys(item).length > 0) {
+        return 'icon-wenjianjia' // 文件夹图标
+      }
+      const ext = name.split('.').pop().toLowerCase()
+      switch (ext) {
+        case 'js':
+          return 'icon-JS'
+        case 'json':
+          return 'icon-wenjiantubiao'
+        case 'md':
+          return 'icon-MD'
+        case 'txt':
+        case 'text':
+          return 'icon-TEXT'
+        case 'bin':
+          return 'icon-BIN'
+        case 'css':
+          return 'icon-CSS'
+        case 'doc':
+          return 'icon-DOC'
+        case 'docx':
+          return 'icon-DOCX'
+        case 'xls':
+        case 'xlsx':
+          return 'icon-XLSX'
+        case 'html':
+          return 'icon-HTML'
+        case 'py':
+          return 'icon-PY'
+        case 'ico':
+          return 'icon-ICO'
+        case 'jpg':
+          return 'icon-JPG'
+        case 'jpeg':
+          return 'icon-JPEG'
+        case 'png':
+          return 'icon-PNG'
+        case 'ppt':
+        case 'pptx':
+          return 'icon-PPT'
+        case 'rar':
+          return 'icon-RAR'
+        case 'zip':
+          return 'icon-ZIP'
+        case 'svg':
+          return 'icon-SVG'
+        case 'pdf':
+          return 'icon-PDF'
+        default:
+          return 'icon-wenjiantubiao' // 默认文件图标
+      }
+    },
+
+    // 处理文件/文件夹点击
+    handleItemClick(name, item) {
+      if (Object.keys(item).length > 0) {
+        // 是文件夹，更新路径和显示内容
+        this.currentPath.push(name)
+        this.updateCurrentFiles()
+      }
+    },
+
+    // 更新当前显示的文件列表
+    updateCurrentFiles() {
+      let current = this.fileData.data.root
+      // 根据当前路径遍历到对应层级
+      for (let i = 1; i < this.currentPath.length; i++) {
+        current = current[this.currentPath[i]]
+      }
+      this.currentFiles = current
+    },
+
+    // 路径导航点击
+    navigateToPath(index) {
+      // 截取到点击的位置
+      this.currentPath = this.currentPath.slice(0, index + 1)
+      this.updateCurrentFiles()
+    },
+
+    // 模拟获取文件树数据
+    async fetchFileTree() {
+      try {
+        // 这里使用模拟数据，实际项目中需要替换为真实的API调用
+        this.fileData = {
+          success: true,
+          message: '获取文件树成功',
+          data: {
+            root: {
+              '.gitignore': {},
+              'app.js': {},
+              config: {
+                'gitConfig.js': {},
+              },
+              controllers: {
+                'gitController.js': {},
+                'gitTreeController.js': {},
+                'sshController.js': {},
+              },
+              examples: {
+                'useFileTreeIndex.js': {},
+              },
+              'package.json': {},
+              public: {
+                '3333.txt': {},
+                'hello.txt': {},
+                'hello1.txt': {},
+                'hello5.txt': {},
+                temp: {
+                  'gitee_id_rsa_1745845010860.pub': {},
+                  'id_ed25519_1745311729219.pub': {},
+                  'id_test_1745312938693.pub': {},
+                },
+                'this.txt': {},
+              },
+              'readme.md': {},
+              routes: {
+                'git-tree.js': {},
+                'git.js': {},
+                'index.js': {},
+                'ssh.js': {},
+              },
+              utils: {
+                'fileUtils.js': {},
+                'gitTreeUtils.js': {},
+                'gitUtils.js': {},
+                '111.doc': {},
+              },
+            },
+          },
+        }
+        this.updateCurrentFiles()
+      } catch (error) {
+        console.error('获取文件树失败:', error)
+      }
+    },
+  },
   mounted() {
-    // 保存事件处理函数的引用，以便正确移除
     this.handleMouseEnter = () => {
       this.isShellHovered = true
     }
@@ -31,9 +191,11 @@ export default {
       shell.addEventListener('mouseenter', this.handleMouseEnter)
       shell.addEventListener('mouseleave', this.handleMouseLeave)
     }
+
+    // 获取文件树数据
+    this.fetchFileTree()
   },
   beforeUnmount() {
-    // 使用正确的生命周期钩子
     const shell = document.querySelector('.shell')
     if (shell) {
       shell.removeEventListener('mouseenter', this.handleMouseEnter)
@@ -63,12 +225,25 @@ export default {
 }
 
 .dark-mode .folder-item .iconfont {
-  color: #9785f0 !important;
+  filter: brightness(0.8) contrast(1.2) !important;
+}
+
+/* 路径导航样式 */
+.dark-mode .path-nav {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark-mode .path-item {
+  color: #fff !important;
+}
+
+.dark-mode .path-separator {
+  color: #666 !important;
 }
 </style>
 
-
 <style scoped>
+@import '@/assets/font/iconfont.css';
 section {
   position: fixed;
   top: 0;
@@ -81,17 +256,42 @@ section {
   padding: 20px;
   box-sizing: border-box;
   overflow: auto;
-  width: calc(100% - 84px); /* 确保宽度计算正确 */
+  width: calc(100% - 84px);
 }
 
 section.shell-expanded {
   left: 300px;
-  width: calc(100% - 300px); /* 自动调整宽度 */
+  width: calc(100% - 300px);
+}
+
+/* 路径导航样式 */
+.path-nav {
+  background: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.path-item {
+  display: inline-block;
+  color: #333;
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.3s;
+}
+
+.path-item:hover {
+  color: #6e5af0;
+}
+
+.path-separator {
+  margin: 0 8px;
+  color: #999;
 }
 
 .folder-container {
   display: grid;
-  /* 动态调整网格列宽，根据容器宽度自动适应 */
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 15px;
   width: 100%;
@@ -101,9 +301,7 @@ section.shell-expanded {
   transition: all 0.3s ease;
 }
 
-/* 当shell展开时调整folder-container布局 */
 .container-expanded {
-  /* 稍微调整网格大小以适应更窄的空间 */
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
 }
 
@@ -116,9 +314,7 @@ section.shell-expanded {
   transition: all 0.1s ease;
   box-sizing: border-box;
   padding: 10px;
-  /* 设置固定高度确保一致性 */
   height: 130px;
-  /* 添加背景色和圆角使文件夹更突出 */
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
 }
@@ -131,14 +327,15 @@ section.shell-expanded {
 
 .folder-item .iconfont {
   font-size: 84px;
-  color: #6e5af0;
   margin-bottom: 8px;
 }
 
 .folder-name {
   font-size: 14px;
   color: #333;
+  text-align: center;
+  word-break: break-all;
+  max-width: 100%;
+  padding: 0 5px;
 }
-
-
 </style>
