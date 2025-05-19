@@ -27,6 +27,20 @@
         <span class="folder-name">{{ name }}</span>
       </div>
     </div>
+
+    <!-- 文件上传按钮 -->
+    <div class="upload-button" @click="triggerFileUpload">
+      <svg class="icon upload-icon" aria-hidden="true">
+        <use xlink:href="#icon-shangchuan1"></use>
+      </svg>
+      <input
+        type="file"
+        ref="fileInput"
+        style="display: none"
+        @change="handleFileUpload"
+        multiple
+      />
+    </div>
   </section>
 </template>
 
@@ -39,6 +53,7 @@ export default {
       fileData: null,
       currentPath: ['root'],
       currentFiles: {},
+      uploading: false,
     }
   },
   methods: {
@@ -179,6 +194,54 @@ export default {
         console.error('获取文件树失败:', error)
       }
     },
+
+    // 触发文件选择对话框
+    triggerFileUpload() {
+      this.$refs.fileInput.click()
+    },
+
+    // 处理文件上传
+    async handleFileUpload(event) {
+      const files = event.target.files
+      if (!files || files.length === 0) return
+
+      try {
+        this.uploading = true
+        // 创建一个FormData对象用于文件上传
+        const formData = new FormData()
+
+        // 添加当前路径信息
+        formData.append('path', this.currentPath.join('/'))
+
+        // 添加所有选择的文件
+        for (let i = 0; i < files.length; i++) {
+          formData.append('files', files[i])
+        }
+
+        // 发送上传请求
+        // 这里使用fetch API示例，实际项目中可以使用axios等库
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          // 上传成功后刷新文件列表
+          this.fetchFileTree()
+          this.$refs.fileInput.value = null // 清空文件选择器
+          alert('文件上传成功！')
+        } else {
+          throw new Error(result.message || '上传失败')
+        }
+      } catch (error) {
+        console.error('文件上传失败:', error)
+        alert(`文件上传失败: ${error.message}`)
+      } finally {
+        this.uploading = false
+      }
+    },
   },
   mounted() {
     // 引入iconfont.js文件
@@ -248,11 +311,21 @@ export default {
   color: #666 !important;
 }
 
+.dark-mode .upload-button {
+  background-color: rgba(110, 90, 240, 0.8) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
 
+.dark-mode .upload-button:hover {
+  background-color: rgba(110, 90, 240, 1) !important;
+}
+
+.dark-mode .upload-button .upload-icon {
+  color: #fff !important;
+}
 </style>
 
 <style scoped>
-
 /* Symbol 图标全局样式 */
 .icon {
   width: 1em;
@@ -363,5 +436,33 @@ section.shell-expanded {
   word-break: break-all;
   max-width: 100%;
   padding: 0 5px;
+}
+
+/* 上传按钮样式 */
+.upload-button {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(110, 90, 240, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.upload-button:hover {
+  transform: scale(1.1);
+  background-color: rgba(110, 90, 240, 1);
+}
+
+.upload-button .upload-icon {
+  font-size: 30px;
+  color: white;
 }
 </style>
