@@ -6,50 +6,56 @@ import GarbageView from '../views/GarbageView.vue'
 import SettingView from '../views/SettingView.vue'
 import DownloadView from '../views/DownloadView.vue'
 import MeView from '../views/MeView.vue'
+import UserLogin from '../UserLogin.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      redirect: '/home'
+      redirect: '/login',
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: UserLogin,
     },
     {
       path: '/home',
       name: 'home',
-      component: HomeView
+      component: HomeView,
     },
     {
       path: '/upload',
       name: 'upload',
-      component: UploadView
+      component: UploadView,
     },
     {
       path: '/star',
       name: 'star',
-      component: StarView
+      component: StarView,
     },
     {
       path: '/garbage',
       name: 'garbage',
-      component: GarbageView
+      component: GarbageView,
     },
     {
       path: '/setting',
       name: 'setting',
-      component: SettingView
+      component: SettingView,
     },
     {
       path: '/download',
       name: 'download',
-      component: DownloadView
+      component: DownloadView,
     },
     {
       path: '/me',
       name: 'me',
-      component: MeView
-    }
-  ]
+      component: MeView,
+    },
+  ],
 })
 
 export default router
