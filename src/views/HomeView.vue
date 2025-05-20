@@ -25,6 +25,20 @@
           <use :xlink:href="getItemIconSymbol(name, item)"></use>
         </svg>
         <span class="folder-name">{{ name }}</span>
+
+        <!-- 新增操作按钮区域 -->
+        <div class="folder-actions">
+          <div class="action-button download" @click.stop="downloadItem(name, item)">
+            <svg class="icon action-icon" aria-hidden="true">
+              <use xlink:href="#icon-xiazai"></use>
+            </svg>
+          </div>
+          <div class="action-button delete" @click.stop="deleteItem(name, item)">
+            <svg class="icon action-icon" aria-hidden="true">
+              <use xlink:href="#icon-shanchu"></use>
+            </svg>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -90,7 +104,14 @@
 
 <script>
 // 导入API函数
-import { fetchFileTree, sparsePull, uploadFiles, createFolder } from '../api/home_api.js'
+import {
+  fetchFileTree,
+  sparsePull,
+  uploadFiles,
+  createFolder,
+  deleteFileOrFolder,
+  downloadFileOrFolder,
+} from '../api/home_api.js'
 export default {
   name: 'HomeView',
   data() {
@@ -399,6 +420,92 @@ export default {
         }
       }
     },
+
+    // 删除文件/文件夹
+    async deleteItem(name, item) {
+      console.log(`删除项目: ${name}`, item)
+
+      // 添加删除确认
+      const isFolder = Object.keys(item).length > 0
+      const confirmMessage = isFolder
+        ? `确定要删除文件夹 "${name}" 及其所有内容吗？此操作不可恢复！`
+        : `确定要删除文件 "${name}" 吗？此操作不可恢复！`
+
+      if (!confirm(confirmMessage)) {
+        return
+      }
+
+      try {
+        // 构建完整路径
+        let fullPath
+        if (this.currentPath.length === 1 && this.currentPath[0] === 'root') {
+          // 如果在根目录
+          fullPath = name
+        } else {
+          // 如果在子目录，去掉root前缀
+          const currentPathWithoutRoot = this.currentPath.slice(1).join('/')
+          fullPath = currentPathWithoutRoot ? `${currentPathWithoutRoot}/${name}` : name
+        }
+        console.log(`删除路径: ${fullPath}`)
+
+        // 调用API删除文件/文件夹
+        const result = await deleteFileOrFolder(fullPath)
+
+        if (result.success) {
+          // 删除成功，刷新文件列表
+          alert(`删除成功: ${name}`)
+          this.fetchFileTree()
+        } else {
+          // 删除失败
+          alert(`删除失败: ${result.message || '未知错误'}`)
+        }
+      } catch (error) {
+        console.error('删除时发生错误:', error)
+        alert(`删除失败: ${error.message || '未知错误'}`)
+      }
+    },
+    // 下载文件/文件夹
+    async downloadItem(name, item) {
+      console.log(`下载项目: ${name}`, item)
+
+      // 添加下载确认
+      const isFolder = Object.keys(item).length > 0
+      const confirmMessage = isFolder
+        ? `确定要下载文件夹 "${name}" 到安装目录吗？`
+        : `确定要下载文件 "${name}" 到安装目录吗？`
+
+      if (!confirm(confirmMessage)) {
+        return
+      }
+
+      try {
+        // 构建完整路径
+        let fullPath
+        if (this.currentPath.length === 1 && this.currentPath[0] === 'root') {
+          // 如果在根目录
+          fullPath = name
+        } else {
+          // 如果在子目录，去掉root前缀
+          const currentPathWithoutRoot = this.currentPath.slice(1).join('/')
+          fullPath = currentPathWithoutRoot ? `${currentPathWithoutRoot}/${name}` : name
+        }
+
+        console.log(`下载路径: ${fullPath}`)
+        // 调用API下载文件/文件夹
+        const result = await downloadFileOrFolder(fullPath)
+
+        if (result.success) {
+          // 下载成功
+          alert(`下载成功: ${name}\n已保存到安装目录`)
+        } else {
+          // 下载失败
+          alert(`下载失败: ${result.message || '未知错误'}`)
+        }
+      } catch (error) {
+        console.error('下载时发生错误:', error)
+        alert(`下载失败: ${error.message || '未知错误'}`)
+      }
+    },
   },
   mounted() {
     console.log('HomeView 组件已挂载')
@@ -496,6 +603,26 @@ export default {
 
 .dark-mode .upload-button .upload-icon {
   color: #fff !important;
+
+  .dark-mode .folder-actions {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+  }
+
+  .dark-mode .action-button {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .dark-mode .action-button:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .dark-mode .action-button.download:hover {
+    background-color: rgba(76, 175, 80, 0.8) !important;
+  }
+
+  .dark-mode .action-button.delete:hover {
+    background-color: rgba(244, 67, 54, 0.8) !important;
+  }
 }
 </style>
 
@@ -753,5 +880,73 @@ h2 {
 .back-button:disabled {
   background-color: #bbb;
   cursor: not-allowed;
+}
+
+.folder-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  box-sizing: border-box;
+  padding: 10px;
+  height: 130px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  position: relative; /* 添加相对定位以便放置操作按钮 */
+  overflow: hidden; /* 隐藏溢出的操作按钮 */
+}
+
+/* 操作按钮容器 */
+.folder-actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 8px 0;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: all 0.3s ease;
+}
+/* 悬停时显示操作按钮 */
+.folder-item:hover .folder-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 操作按钮样式 */
+.action-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  margin: 0 8px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
+}
+
+.action-button.download:hover {
+  background-color: #4caf50;
+}
+
+.action-button.delete:hover {
+  background-color: #f44336;
+}
+
+.action-icon {
+  font-size: 20px;
+  color: white;
 }
 </style>

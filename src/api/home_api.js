@@ -160,3 +160,58 @@ export async function createFolder(baseDir, folderName) {
     throw error;
   }
 }
+
+
+/**
+ * 删除文件或文件夹
+ * @param {string} path - 要删除的文件或文件夹路径
+ * @returns {Promise} - 返回删除结果的Promise
+ */
+export async function deleteFileOrFolder(path) {
+  try {
+    // 处理路径，如果是root则变为/
+    const formattedPath = path === 'root' ? '/' : path;
+
+    const response = await axios.delete(
+      `${import.meta.env.VITE_API_URL}/file/delete`,
+      {
+        data: { path: formattedPath },
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('删除文件或文件夹时发生错误:', error);
+    throw error;
+  }
+}
+
+/**
+ * 下载文件或文件夹到安装目录
+ * @param {string} sourcePath - 要下载的文件或文件夹路径
+ * @returns {Promise} - 返回下载结果的Promise
+ */
+export async function downloadFileOrFolder(sourcePath) {
+  try {
+    // 处理路径，如果是root则变为/
+    const formattedPath = sourcePath === 'root' ? '/' : sourcePath;
+
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_URL}/file/copy-to-install`,
+      { sourcePath: formattedPath },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('下载文件或文件夹时发生错误:', error);
+    throw error;
+  }
+}

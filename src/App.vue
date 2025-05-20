@@ -74,7 +74,7 @@
           <div class="iconbar">
             <div class="icon">
               <div class="imageBox">
-                <img src="@/assets/images/logo.png" alt="" />
+                <img src="@/assets/images/user.jpg" alt="" />
               </div>
             </div>
             <div class="text">ME</div>
@@ -414,6 +414,14 @@ section {
   position: relative !important;
   left: auto !important;
   top: auto !important;
+}
+
+/* 调整ME头像的大小 */
+.me-profile .icon .imageBox {
+  width: 50px;  /* 将头像尺寸从70px减小到50px */
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
 }
 
 /* 确保选中项图标的样式正确 */
